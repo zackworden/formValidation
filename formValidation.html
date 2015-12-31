@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			.formError
+			{
+				transition:background-color .6s;
+			}
+			.formErrorStart
+			{
+				background-color:yellow;
+			}
+		</style>
+		<script>
+			function FormValidation( formElement, arrayOfRequiredFields )
+			{
+				this.Construct = function( arrayOfRequiredFields )
+				{
+					var error = false;
+					var inputElement;
+					var inputType;
+					var counter = 0;
+					var numOf = arrayOfRequiredFields.length;
+					
+					for ( counter = 0; counter < numOf; counter ++ )
+					{
+						inputElement = formElement[arrayOfRequiredFields[counter]];
+						inputType = inputElement.getAttribute('type');
+
+						switch ( inputType )
+						{
+							case 'email':
+								if ( this.ValidateEmail( inputElement ) === false )
+								{
+									error = new InvalidFormError( inputElement, 'Please enter a valid email address.');
+								}
+							break;
+							case 'text':
+								if ( this.ValidateTextField( inputElement ) === false )
+								{
+									error = new InvalidFormError( inputElement, 'Please enter an appropriate value.');
+								}
+							break;
+							default:
+								if ( this.ValidateTextField( inputElement ) === false )
+								{
+									error = new InvalidFormError( inputElement, 'Please enter an appropriate value.');
+								}
+							break;
+						}
+						
+						if ( error !== false )
+						{
+							break;
+						}
+					}
+					
+					if ( error !== false )
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
+				}
+				this.ValidateEmail = function( emailInputElement )
+				{
+					var regExpPattern = /[A-z0-9.-_]+@[A-z0-9-_]{2,}.[A-z0-9-_]{2,}/;
+					var emailValidation = new RegExp(regExpPattern,'i');
+					var result = emailValidation.exec( emailInputElement.value );
+					
+					if ( result == undefined )
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
+				}
+				this.ValidateTextField = function( textInputElement )
+				{
+					if ( textInputElement.value == '' || textInputElement.value == ' ' )
+					{
+						return false;
+					}
+					else
+					{
+						return true;
+					}
+				}
+				return this.Construct( arrayOfRequiredFields );
+			}
+			function InvalidFormError( inputElement, theMessage)
+			{
+				alert( theMessage );
+				
+				inputElement.classList.add('formError');
+				
+				this.InitAnimation = function()
+				{
+					inputElement.scrollIntoView();
+					inputElement.focus();
+					inputElement.classList.add('formErrorStart');
+					inputElement.addEventListener('transitionend', this.EndAnimation );
+				}
+				this.EndAnimation = function()
+				{
+					function Enact()
+					{
+						function Cleanup()
+						{
+							inputElement.classList.remove('formError');
+						}
+						inputElement.classList.remove('formErrorStart');
+						window.setTimeout( Cleanup, 800 );
+					}
+					window.setTimeout(Enact, 800);
+				}
+				
+				var callback = this.InitAnimation.bind( this );
+				window.setTimeout(callback, 100);
+			}
+		</script>
+	</head>
+	<body>
+		<form method="post" action="#" onsubmit="return FormValidation( this, ['field1','field2'] );">
+			<input type="email" value="" name="field1" />
+			<input type="text" value="" name="field2" />
+			<input type="text" value="" name="field3" />
+			<input type="text" value="" name="field4" />
+			<input type="text" value="" name="field5" />
+			<input type="submit" value="Submit" />
+		</form>
+	</body>
+</html>
